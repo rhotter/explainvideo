@@ -2,15 +2,13 @@
 
 import { useState, useEffect } from 'react'
 import { useChat } from 'ai/react'
-import { openai } from '@ai-sdk/openai'
-import { anthropic } from '@ai-sdk/anthropic'
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
 
-export default function AIChat({ player, videoId }: { player: any; videoId: string }) {
+export default function AIChat({ videoId }: { videoId: string }) {
   const [model, setModel] = useState('gpt-4o')
   const [transcript, setTranscript] = useState('')
   const [screenshot, setScreenshot] = useState('')
@@ -20,35 +18,28 @@ export default function AIChat({ player, videoId }: { player: any; videoId: stri
     body: { model, transcript, screenshot, videoId },
   })
 
+  // Placeholder for transcript and screenshot updates
   useEffect(() => {
     const intervalId = setInterval(() => {
-      if (player) {
-        updateTranscriptAndScreenshot()
-      }
-    }, 10000) // Update every 10 seconds
+      const currentTime = Date.now()
+      setTranscript(`Transcript at ${currentTime}`)
+      setScreenshot(`Screenshot at ${currentTime}`)
+    }, 10000)
 
     return () => clearInterval(intervalId)
-  }, [player])
-
-  const updateTranscriptAndScreenshot = async () => {
-    if (player) {
-      const currentTime = player.getCurrentTime()
-      const startTime = Math.max(0, currentTime - 180) // 3 minutes ago
-
-      // This is a placeholder. In a real application, you'd need to implement
-      // actual transcription and screenshot capture.
-      setTranscript(`Transcript from ${startTime} to ${currentTime}`)
-      setScreenshot(`Screenshot at ${currentTime}`)
-    }
-  }
+  }, [])
 
   return (
-    <Card>
+    <Card className="h-[calc(100vh-2rem)]">
       <CardHeader>
         <CardTitle>AI Chat</CardTitle>
       </CardHeader>
-      <CardContent className="space-y-4">
-        <Select onValueChange={(value) => setModel(value)}>
+      <CardContent className="flex flex-col h-[calc(100%-5rem)]">
+        <Select 
+          defaultValue={model} 
+          onValueChange={setModel}
+          className="mb-4"
+        >
           <SelectTrigger>
             <SelectValue placeholder="Select AI Model" />
           </SelectTrigger>
@@ -57,19 +48,27 @@ export default function AIChat({ player, videoId }: { player: any; videoId: stri
             <SelectItem value="claude-3-5-sonnet-20240620">Claude</SelectItem>
           </SelectContent>
         </Select>
-        <ScrollArea className="h-[400px] rounded-md border p-4">
+        
+        <ScrollArea className="flex-1 p-4 rounded-md border mb-4">
           {messages.map((m) => (
-            <div key={m.id} className="mb-4 last:mb-0">
+            <div
+              key={m.id}
+              className={`mb-4 last:mb-0 ${
+                m.role === 'user' ? 'text-primary' : 'text-muted-foreground'
+              }`}
+            >
               <p className="font-semibold">{m.role === 'user' ? 'You:' : 'AI:'}</p>
-              <p>{m.content}</p>
+              <p className="mt-1">{m.content}</p>
             </div>
           ))}
         </ScrollArea>
-        <form onSubmit={handleSubmit} className="flex space-x-2">
+
+        <form onSubmit={handleSubmit} className="flex gap-2">
           <Input
             value={input}
             onChange={handleInputChange}
-            placeholder="Ask a question about the video..."
+            placeholder="Ask about the video..."
+            className="flex-1"
           />
           <Button type="submit">Send</Button>
         </form>
