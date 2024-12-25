@@ -1,13 +1,13 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import YouTube from "react-youtube";
+import YouTube, { YouTubePlayer, YouTubeEvent } from "react-youtube";
 import { Card, CardContent } from "@/components/ui/card";
 
 export default function VideoPlayer({ videoId }: { videoId: string }) {
-  const [player, setPlayer] = useState<any>(null);
+  const [player, setPlayer] = useState<YouTubePlayer | null>(null);
 
-  const onReady = (event: { target: any }) => {
+  const onReady = (event: YouTubeEvent) => {
     setPlayer(event.target);
   };
 

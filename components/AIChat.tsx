@@ -14,10 +14,16 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
+interface TranscriptItem {
+  text: string;
+  offset: number;
+  duration: number;
+}
+
 export default function AIChat({ videoId }: { videoId: string }) {
   const [model, setModel] = useState("gpt-4o");
   const [currentTime, setCurrentTime] = useState(0);
-  const [fullTranscript, setFullTranscript] = useState<any[]>([]);
+  const [fullTranscript, setFullTranscript] = useState<TranscriptItem[]>([]);
 
   // Custom submit handler to include current transcript context
   const handleSubmitWithContext = async (
