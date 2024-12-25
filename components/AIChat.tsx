@@ -35,17 +35,14 @@ export default function AIChat({ videoId }: { videoId: string }) {
       .map((item) => item.text)
       .join(" ");
 
-    console.log({
-      relevantTranscript,
-      currentTime,
-      threeMinutesAgo,
-      sampleItem: fullTranscript[0],
-      numItems: fullTranscript.length,
-    });
-
     // Submit with current context
     handleSubmit(e, {
-      body: { model, transcript: relevantTranscript, videoId },
+      body: {
+        model,
+        transcript: relevantTranscript,
+        videoId,
+        currentTime,
+      },
     });
   };
 
@@ -70,15 +67,15 @@ export default function AIChat({ videoId }: { videoId: string }) {
 
   // Listen for time updates from the video player
   useEffect(() => {
-    const handleTimeUpdate = (event: MessageEvent) => {
+    const handleMessages = (event: MessageEvent) => {
       if (event.data.type === "timeUpdate") {
         setCurrentTime(event.data.currentTime);
       }
     };
 
-    window.addEventListener("message", handleTimeUpdate);
+    window.addEventListener("message", handleMessages);
     return () => {
-      window.removeEventListener("message", handleTimeUpdate);
+      window.removeEventListener("message", handleMessages);
     };
   }, []);
 
