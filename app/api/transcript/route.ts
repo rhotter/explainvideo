@@ -26,12 +26,15 @@ export async function GET(request: Request) {
       location: "US",
       retrieve_player: false,
     });
+
+    // youtube.getInfo issues a useless warning, which clogs the terminal, so we temporarily suppress it
+    const originalWarn = console.warn;
+    console.warn = () => {};
+
     const info = await youtube.getInfo(videoId);
 
-    const captions = info.getTranscript();
-    if (!captions) {
-      throw new Error("No captions available for this video");
-    }
+    // Restore console warnings
+    console.warn = originalWarn;
 
     const transcriptData = await info.getTranscript();
     const segments =
