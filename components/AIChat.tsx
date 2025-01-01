@@ -100,7 +100,7 @@ export default function AIChat({ videoId }: { videoId: string }) {
             <SelectItem value="claude-3-5-sonnet-20240620">
               Claude Sonnet 3.5
             </SelectItem>
-            <SelectItem value="o1">O1</SelectItem>
+            <SelectItem value="o1">o1</SelectItem>
           </SelectContent>
         </Select>
 

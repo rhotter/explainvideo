@@ -1,4 +1,4 @@
-import { YoutubeTranscript } from "youtube-transcript";
+import { Innertube } from "youtubei.js";
 import { NextResponse } from "next/server";
 
 export async function GET(request: Request) {
@@ -13,8 +13,29 @@ export async function GET(request: Request) {
   }
 
   try {
-    const transcript = await YoutubeTranscript.fetchTranscript(videoId);
-    return NextResponse.json({ transcript });
+    const youtube = await Innertube.create({
+      lang: "en",
+      location: "US",
+      retrieve_player: false,
+    });
+    const info = await youtube.getInfo(videoId);
+
+    const captions = info.getTranscript();
+    if (!captions) {
+      throw new Error("No captions available for this video");
+    }
+
+    const transcriptData = await info.getTranscript();
+    const segments =
+      transcriptData.transcript.content?.body?.initial_segments || [];
+
+    const formattedTranscript = segments.map((segment: any) => ({
+      text: String(segment.snippet.text),
+      offset: Number(segment.start_ms) / 1000,
+      duration: (Number(segment.end_ms) - Number(segment.start_ms)) / 1000,
+    }));
+
+    return NextResponse.json({ transcript: formattedTranscript });
   } catch (error) {
     console.error("Error fetching transcript:", error);
     return NextResponse.json(
