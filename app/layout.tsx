@@ -5,7 +5,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata = {
-  title: "YouTube AI Chat",
+  title: "Explain Video",
   description: "Watch YouTube videos and chat with AI about them",
 };
 
