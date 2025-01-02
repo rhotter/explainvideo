@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, memo } from "react";
 import { useChat } from "ai/react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -13,12 +13,40 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import ReactMarkdown from "react-markdown";
+import remarkMath from "remark-math";
+import rehypeKatex from "rehype-katex";
+import "katex/dist/katex.min.css";
 
 interface TranscriptItem {
   text: string;
   offset: number;
   duration: number;
 }
+
+// Memoized message component for better performance
+const Message = memo(({ role, content }: { role: string; content: string }) => (
+  <div
+    className={`mb-4 last:mb-0 ${
+      role === "user" ? "text-primary" : "text-muted-foreground"
+    }`}
+  >
+    <p className="font-semibold">{role === "user" ? "You:" : "AI:"}</p>
+    {role === "user" ? (
+      <p className="mt-1">{content}</p>
+    ) : (
+      <div className="mt-1 prose prose-sm dark:prose-invert max-w-none">
+        <ReactMarkdown
+          remarkPlugins={[remarkMath]}
+          rehypePlugins={[rehypeKatex]}
+        >
+          {content}
+        </ReactMarkdown>
+      </div>
+    )}
+  </div>
+));
+Message.displayName = "Message";
 
 export default function AIChat({ videoId }: { videoId: string }) {
   const [model, setModel] = useState("gpt-4o");
@@ -106,17 +134,7 @@ export default function AIChat({ videoId }: { videoId: string }) {
 
         <ScrollArea className="flex-1 p-4 rounded-md border mb-4 mt-4">
           {messages.map((m) => (
-            <div
-              key={m.id}
-              className={`mb-4 last:mb-0 ${
-                m.role === "user" ? "text-primary" : "text-muted-foreground"
-              }`}
-            >
-              <p className="font-semibold">
-                {m.role === "user" ? "You:" : "AI:"}
-              </p>
-              <p className="mt-1">{m.content}</p>
-            </div>
+            <Message key={m.id} role={m.role} content={m.content} />
           ))}
         </ScrollArea>
 

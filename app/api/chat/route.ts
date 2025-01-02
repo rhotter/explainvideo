@@ -34,7 +34,14 @@ Description: ${metadata.description}`
 Current timestamp: ${currentTime} seconds
 Recent transcript: ${transcript}
 
-Please use this context to answer the user's questions about the video.`,
+When explaining mathematical concepts:
+- Use $...$ for inline math: $E = mc^2$
+- Use $$...$$ for block math equations:
+- Use LaTeX notation for all mathematical expressions
+- Format complex equations as block math for better readability
+
+Please use this context to answer the user's questions about the video.
+`,
     };
 
     // Get the appropriate AI model
