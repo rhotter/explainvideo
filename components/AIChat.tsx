@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, memo } from "react";
+import { useState, useEffect, memo, useRef } from "react";
 import { useChat } from "ai/react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -80,12 +80,48 @@ export default function AIChat({ videoId }: { videoId: string }) {
   const [messageTimestamps, setMessageTimestamps] = useState<
     Record<string, number>
   >({});
+  const scrollAreaRef = useRef<HTMLDivElement>(null);
+  const autoScroll = useRef(true);
 
-  // Custom submit handler to include current transcript context
+  const { messages, input, handleInputChange, handleSubmit, isLoading } =
+    useChat({
+      api: "/api/chat",
+    });
+
+  // Auto scroll during streaming unless disabled
+  useEffect(() => {
+    if (scrollAreaRef.current && autoScroll.current) {
+      const scrollContainer = scrollAreaRef.current.querySelector(
+        "[data-radix-scroll-area-viewport]"
+      ) as HTMLDivElement;
+
+      if (scrollContainer) {
+        scrollContainer.scrollTop = scrollContainer.scrollHeight;
+      }
+    }
+  }, [messages]);
+
+  // Disable auto-scroll on any mouse wheel movement
+  useEffect(() => {
+    const scrollContainer = scrollAreaRef.current?.querySelector(
+      "[data-radix-scroll-area-viewport]"
+    ) as HTMLDivElement;
+
+    if (!scrollContainer) return;
+
+    const handleWheel = () => {
+      autoScroll.current = false;
+    };
+
+    scrollContainer.addEventListener("wheel", handleWheel, { passive: true });
+    return () => scrollContainer.removeEventListener("wheel", handleWheel);
+  }, []);
+
   const handleSubmitWithContext = async (
     e: React.FormEvent<HTMLFormElement>
   ) => {
     e.preventDefault();
+    autoScroll.current = true;
 
     // Get transcript from last 3 minutes
     const threeMinutesAgo = currentTime - 180;
@@ -114,11 +150,6 @@ export default function AIChat({ videoId }: { videoId: string }) {
       [newMessageId]: currentTime,
     }));
   };
-
-  const { messages, input, handleInputChange, handleSubmit, isLoading } =
-    useChat({
-      api: "/api/chat",
-    });
 
   // Fetch full transcript on mount
   useEffect(() => {
@@ -168,7 +199,10 @@ export default function AIChat({ videoId }: { videoId: string }) {
           </SelectContent>
         </Select>
 
-        <ScrollArea className="flex-1 p-4 rounded-md border mb-4 mt-4">
+        <ScrollArea
+          ref={scrollAreaRef}
+          className="flex-1 p-4 rounded-md border mb-4 mt-4"
+        >
           {messages.map((m, index) => (
             <Message
               key={m.id}
