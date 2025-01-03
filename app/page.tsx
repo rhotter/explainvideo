@@ -19,9 +19,18 @@ export default function Home() {
 
     try {
       const url = new URL(input.value);
-      const videoId = url.searchParams.get("v");
+      let videoId: string | null = null;
 
-      if (!videoId || !url.hostname.includes("youtube.com")) {
+      // Handle standard youtube.com and m.youtube.com URLs
+      if (url.hostname.includes("youtube.com")) {
+        videoId = url.searchParams.get("v");
+      }
+      // Handle youtu.be URLs
+      else if (url.hostname === "youtu.be") {
+        videoId = url.pathname.slice(1); // Remove the leading slash
+      }
+
+      if (!videoId) {
         setError("Please enter a valid YouTube URL");
         return;
       }
