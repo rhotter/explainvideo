@@ -24,34 +24,62 @@ interface TranscriptItem {
   duration: number;
 }
 
+const formatTime = (seconds: number) => {
+  const minutes = Math.floor(seconds / 60);
+  const remainingSeconds = Math.floor(seconds % 60);
+  return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`;
+};
+
 // Memoized message component for better performance
-const Message = memo(({ role, content }: { role: string; content: string }) => (
-  <div
-    className={`mb-4 last:mb-0 ${
-      role === "user" ? "text-primary" : "text-muted-foreground"
-    }`}
-  >
-    <p className="font-semibold">{role === "user" ? "You:" : "AI:"}</p>
-    {role === "user" ? (
-      <p className="mt-1">{content}</p>
-    ) : (
-      <div className="mt-1 prose prose-sm dark:prose-invert max-w-none">
-        <ReactMarkdown
-          remarkPlugins={[remarkMath]}
-          rehypePlugins={[rehypeKatex]}
-        >
-          {content}
-        </ReactMarkdown>
+const Message = memo(
+  ({
+    role,
+    content,
+    timestamp,
+  }: {
+    role: string;
+    content: string;
+    timestamp?: number;
+  }) => (
+    <div
+      className={`mb-4 last:mb-0 ${
+        role === "user" ? "text-primary" : "text-muted-foreground"
+      }`}
+    >
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <p className="font-semibold">{role === "user" ? "You:" : "AI:"}</p>
+        </div>
+        {role === "user" && timestamp !== undefined && (
+          <span className="text-xs text-muted-foreground bg-gray-800 rounded-md px-1 py-0.5">
+            {formatTime(timestamp)}
+          </span>
+        )}
       </div>
-    )}
-  </div>
-));
+      {role === "user" ? (
+        <p className="mt-1">{content}</p>
+      ) : (
+        <div className="mt-1 prose prose-sm dark:prose-invert max-w-none">
+          <ReactMarkdown
+            remarkPlugins={[remarkMath]}
+            rehypePlugins={[rehypeKatex]}
+          >
+            {content}
+          </ReactMarkdown>
+        </div>
+      )}
+    </div>
+  )
+);
 Message.displayName = "Message";
 
 export default function AIChat({ videoId }: { videoId: string }) {
   const [model, setModel] = useState("gpt-4o");
   const [currentTime, setCurrentTime] = useState(0);
   const [fullTranscript, setFullTranscript] = useState<TranscriptItem[]>([]);
+  const [messageTimestamps, setMessageTimestamps] = useState<
+    Record<string, number>
+  >({});
 
   // Custom submit handler to include current transcript context
   const handleSubmitWithContext = async (
@@ -78,6 +106,13 @@ export default function AIChat({ videoId }: { videoId: string }) {
         currentTime,
       },
     });
+
+    // Store timestamp for the new message
+    const newMessageId = messages.length.toString();
+    setMessageTimestamps((prev) => ({
+      ...prev,
+      [newMessageId]: currentTime,
+    }));
   };
 
   const { messages, input, handleInputChange, handleSubmit, isLoading } =
@@ -134,8 +169,17 @@ export default function AIChat({ videoId }: { videoId: string }) {
         </Select>
 
         <ScrollArea className="flex-1 p-4 rounded-md border mb-4 mt-4">
-          {messages.map((m) => (
-            <Message key={m.id} role={m.role} content={m.content} />
+          {messages.map((m, index) => (
+            <Message
+              key={m.id}
+              role={m.role}
+              content={m.content}
+              timestamp={
+                m.role === "user"
+                  ? messageTimestamps[index.toString()]
+                  : undefined
+              }
+            />
           ))}
           {isLoading &&
             model === "o1-mini" &&
