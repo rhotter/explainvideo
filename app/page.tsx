@@ -43,25 +43,37 @@ export default function Home() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
-      <Card className="w-full max-w-md">
-        <CardHeader>
-          <CardTitle className="text-center">Explain Video</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <Input
-              type="text"
-              name="videoUrl"
-              placeholder="Enter YouTube URL"
-              className="w-full"
-            />
-            {error && <p className="text-sm text-destructive">{error}</p>}
-            <Button type="submit" className="w-full">
-              Start Watching
-            </Button>
-          </form>
-        </CardContent>
-      </Card>
+      <div className="flex flex-col items-center w-full max-w-md">
+        <Card className="w-full">
+          <CardHeader>
+            <CardTitle className="text-center">Explain Video</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <Input
+                type="text"
+                name="videoUrl"
+                placeholder="Enter YouTube URL"
+                className="w-full"
+              />
+              {error && <p className="text-sm text-destructive">{error}</p>}
+              <Button type="submit" className="w-full">
+                Start Watching
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
+        <p className="text-xs text-gray-500 mt-8">
+          Try an example:{" "}
+          <button
+            type="button"
+            onClick={() => router.push(`/watch?v=0JUN9aDxVmI`)}
+            className="text-gray-500 underline"
+          >
+            Advanced Algorithms (COMPSCI 224)
+          </button>
+        </p>
+      </div>
     </div>
   );
 }
