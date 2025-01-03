@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 export default function Home() {
   const router = useRouter();
@@ -65,13 +66,9 @@ export default function Home() {
         </Card>
         <p className="text-xs text-gray-500 mt-8">
           Try an example:{" "}
-          <button
-            type="button"
-            onClick={() => router.push(`/watch?v=0JUN9aDxVmI`)}
-            className="text-gray-500 underline"
-          >
+          <Link href="/watch?v=0JUN9aDxVmI" className="text-gray-500 underline">
             Advanced Algorithms (COMPSCI 224)
-          </button>
+          </Link>
         </p>
       </div>
     </div>
