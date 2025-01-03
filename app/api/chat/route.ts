@@ -19,7 +19,7 @@ export async function POST(req: Request) {
 
     // Create system message with metadata if available
     const systemMessage = {
-      role: "system",
+      role: model.startsWith("o1") ? "user" : "system", // o1 models don't support system messages on vercel ai sdk
       content: `You are an AI assistant helping with questions about a YouTube video.
 
 ${
@@ -45,7 +45,10 @@ Please use this context to answer the user's questions about the video.
     };
 
     // Get the appropriate AI model
-    const aiModel = model.startsWith("gpt") ? openai(model) : anthropic(model);
+    const aiModel =
+      model.startsWith("gpt") || model.startsWith("o1")
+        ? openai(model)
+        : anthropic(model);
 
     // Create stream with system message prepended
     const stream = streamText({

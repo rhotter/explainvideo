@@ -80,9 +80,10 @@ export default function AIChat({ videoId }: { videoId: string }) {
     });
   };
 
-  const { messages, input, handleInputChange, handleSubmit } = useChat({
-    api: "/api/chat",
-  });
+  const { messages, input, handleInputChange, handleSubmit, isLoading } =
+    useChat({
+      api: "/api/chat",
+    });
 
   // Fetch full transcript on mount
   useEffect(() => {
@@ -128,7 +129,7 @@ export default function AIChat({ videoId }: { videoId: string }) {
             <SelectItem value="claude-3-5-sonnet-20240620">
               Claude Sonnet 3.5
             </SelectItem>
-            <SelectItem value="o1">o1</SelectItem>
+            <SelectItem value="o1-mini">o1-mini</SelectItem>
           </SelectContent>
         </Select>
 
@@ -136,6 +137,14 @@ export default function AIChat({ videoId }: { videoId: string }) {
           {messages.map((m) => (
             <Message key={m.id} role={m.role} content={m.content} />
           ))}
+          {isLoading &&
+            model === "o1-mini" &&
+            messages[messages.length - 1]?.role !== "assistant" && (
+              <div className="text-muted-foreground">
+                <p className="font-semibold">AI:</p>
+                <p className="mt-1">Thinking...</p>
+              </div>
+            )}
         </ScrollArea>
 
         <form onSubmit={handleSubmitWithContext} className="flex gap-2">
