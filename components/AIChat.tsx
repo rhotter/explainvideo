@@ -192,10 +192,9 @@ export default function AIChat({ videoId }: { videoId: string }) {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="gpt-4o">GPT-4o</SelectItem>
-            <SelectItem value="claude-3-5-sonnet-20240620">
-              Claude Sonnet 3.5
+            <SelectItem value="claude-sonnet-4-20250514">
+              Claude Sonnet 4
             </SelectItem>
-            <SelectItem value="o1-mini">o1-mini</SelectItem>
           </SelectContent>
         </Select>
 
